@@ -1,0 +1,17 @@
+# Variables de entorno
+.env
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Mac
+.DS_Store
+
+# Node
+node_modules/
+
+# Build
+dist/
+target/
