@@ -4,11 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { SurveyService } from '../../services/survey.service';
 import { AuthService } from '../../services/auth.service';
 import { SurveyResponse, SurveyRequest } from '../../models/survey.model';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartData, ChartOptions } from 'chart.js';
+import { Chart, ArcElement, Tooltip, Legend, DoughnutController, BarController, CategoryScale, LinearScale, BarElement } from 'chart.js';
+
+Chart.register(ArcElement, Tooltip, Legend, DoughnutController, BarController, CategoryScale, LinearScale, BarElement);
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './admin.component.html'
 })
 export class AdminComponent implements OnInit, OnDestroy {
@@ -23,6 +28,63 @@ export class AdminComponent implements OnInit, OnDestroy {
   question = '';
   options: string[] = ['', ''];
 
+  get totalSurveys() { return this.surveys.length; }
+  get activeSurveys() { return this.surveys.filter(s => s.active).length; }
+  get totalVotes() { return this.surveys.reduce((sum, s) => sum + this.getTotalVotes(s), 0); }
+
+  get donutData(): ChartData<'doughnut'> {
+    return {
+      labels: ['Activas', 'Inactivas'],
+      datasets: [{
+        data: [this.activeSurveys, this.totalSurveys - this.activeSurveys],
+        backgroundColor: ['#B51A2B', '#384358'],
+        borderColor: 'transparent',
+        hoverOffset: 8
+      }]
+    };
+  }
+
+  donutOptions: ChartOptions<'doughnut'> = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: 'rgba(255,255,255,0.6)', padding: 16, font: { size: 12 } }
+      }
+    },
+    cutout: '70%'
+  };
+
+  get barData(): ChartData<'bar'> {
+    return {
+      labels: this.surveys.map(s => s.question.length > 20 ? s.question.substring(0, 20) + '...' : s.question),
+      datasets: [{
+        label: 'Votos',
+        data: this.surveys.map(s => this.getTotalVotes(s)),
+        backgroundColor: this.surveys.map((_, i) =>
+          i % 2 === 0 ? 'rgba(181,26,43,0.8)' : 'rgba(255,165,134,0.8)'
+        ),
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    };
+  }
+
+  barOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: {
+        ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      },
+      y: {
+        ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 11 } },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      }
+    }
+  };
+
   constructor(
     private surveyService: SurveyService,
     private authService: AuthService,
@@ -34,9 +96,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.interval = setInterval(() => this.loadSurveys(), 5000);
   }
 
-  trackByIndex(index: number): number {
-  return index;
-}
   ngOnDestroy() {
     if (this.interval) clearInterval(this.interval);
   }
@@ -84,6 +143,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   removeOption(index: number) {
     if (this.options.length > 2) this.options.splice(index, 1);
   }
+
+  trackByIndex(index: number): number { return index; }
 
   onSubmit() {
     const validOptions = this.options.filter(o => o.trim() !== '');
