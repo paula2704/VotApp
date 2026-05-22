@@ -28,7 +28,7 @@ public class SecurityConfig {
         http
             // desactiva CSRF porque usamos JWT, no sesiones
             .csrf(csrf -> csrf.disable())
-
+            .cors(cors -> cors.disable())
             // STATELESS significa que Spring no guarda sesiones
             // cada petición debe traer su propio token
             .sessionManagement(session ->
