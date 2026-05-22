@@ -11,6 +11,7 @@ import com.VotApp.demo.repository.UserRepository;
 import com.VotApp.demo.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,8 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
+
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
@@ -57,7 +60,8 @@ public class SurveyService {
         response.setOptions(options);
         return response;
     }
-
+    
+   
     public List<SurveyResponse> getAll() {
         return surveyRepository.findAll().stream()
                 .map(this::toResponse)
@@ -118,11 +122,17 @@ public class SurveyService {
         return toResponse(surveyRepository.save(survey));
     }
 
+    @Transactional
     public void delete(Long id) {
-        surveyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Encuesta no encontrada"));
-        surveyRepository.deleteById(id);
-    }
+    Survey survey = surveyRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Encuesta no encontrada"));
+    
+    // borra los votos asociados antes de borrar la encuesta
+    // sin esto la BD lanza error de foreign key constraint
+    voteRepository.deleteBySurveyId(id);
+    
+    surveyRepository.deleteById(id);
+}
 
     public void toggleActive(Long id) {
         Survey survey = surveyRepository.findById(id)

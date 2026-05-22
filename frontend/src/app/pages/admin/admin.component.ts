@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SurveyService } from '../../services/survey.service';
@@ -9,7 +9,7 @@ import { SurveyResponse, SurveyRequest } from '../../models/survey.model';
   selector: 'app-admin',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin.component.html',
+  templateUrl: './admin.component.html'
 })
 export class AdminComponent implements OnInit, OnDestroy {
   surveys: SurveyResponse[] = [];
@@ -18,7 +18,6 @@ export class AdminComponent implements OnInit, OnDestroy {
   successMessage = '';
   private interval: any;
 
-  // formulario de crear/editar
   showForm = false;
   editingId: number | null = null;
   question = '';
@@ -26,15 +25,18 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   constructor(
     private surveyService: SurveyService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadSurveys();
-    // polling cada 5 segundos para ver votos en tiempo real
     this.interval = setInterval(() => this.loadSurveys(), 5000);
   }
 
+  trackByIndex(index: number): number {
+  return index;
+}
   ngOnDestroy() {
     if (this.interval) clearInterval(this.interval);
   }
@@ -44,15 +46,16 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.surveys = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Error al cargar las encuestas';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
-  // abre el formulario vacío para crear
   openCreate() {
     this.editingId = null;
     this.question = '';
@@ -60,7 +63,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.showForm = true;
   }
 
-  // abre el formulario con los datos de la encuesta a editar
   openEdit(survey: SurveyResponse) {
     this.editingId = survey.id;
     this.question = survey.question;
@@ -76,54 +78,28 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   addOption() {
-    if (this.options.length < 6) {
-      this.options.push('');
-    }
+    if (this.options.length < 6) this.options.push('');
   }
 
   removeOption(index: number) {
-    if (this.options.length > 2) {
-      this.options.splice(index, 1);
-    }
+    if (this.options.length > 2) this.options.splice(index, 1);
   }
 
   onSubmit() {
-    // filtra opciones vacías
     const validOptions = this.options.filter(o => o.trim() !== '');
+    if (!this.question.trim()) { this.error = 'La pregunta es obligatoria'; return; }
+    if (validOptions.length < 2) { this.error = 'Agrega mínimo 2 opciones'; return; }
 
-    if (!this.question.trim()) {
-      this.error = 'La pregunta es obligatoria';
-      return;
-    }
-
-    if (validOptions.length < 2) {
-      this.error = 'Agrega mínimo 2 opciones';
-      return;
-    }
-
-    const request: SurveyRequest = {
-      question: this.question.trim(),
-      options: validOptions
-    };
+    const request: SurveyRequest = { question: this.question.trim(), options: validOptions };
 
     if (this.editingId) {
       this.surveyService.update(this.editingId, request).subscribe({
-        next: () => {
-          this.successMessage = 'Encuesta actualizada';
-          this.closeForm();
-          this.loadSurveys();
-          setTimeout(() => this.successMessage = '', 3000);
-        },
+        next: () => { this.successMessage = 'Encuesta actualizada'; this.closeForm(); this.loadSurveys(); setTimeout(() => this.successMessage = '', 3000); },
         error: () => this.error = 'Error al actualizar'
       });
     } else {
       this.surveyService.create(request).subscribe({
-        next: () => {
-          this.successMessage = 'Encuesta creada';
-          this.closeForm();
-          this.loadSurveys();
-          setTimeout(() => this.successMessage = '', 3000);
-        },
+        next: () => { this.successMessage = 'Encuesta creada'; this.closeForm(); this.loadSurveys(); setTimeout(() => this.successMessage = '', 3000); },
         error: () => this.error = 'Error al crear'
       });
     }
@@ -132,11 +108,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   delete(id: number) {
     if (confirm('¿Eliminar esta encuesta?')) {
       this.surveyService.delete(id).subscribe({
-        next: () => {
-          this.successMessage = 'Encuesta eliminada';
-          this.loadSurveys();
-          setTimeout(() => this.successMessage = '', 3000);
-        },
+        next: () => { this.successMessage = 'Encuesta eliminada'; this.loadSurveys(); setTimeout(() => this.successMessage = '', 3000); },
         error: () => this.error = 'Error al eliminar'
       });
     }
@@ -159,7 +131,5 @@ export class AdminComponent implements OnInit, OnDestroy {
     return Math.round((votes / total) * 100);
   }
 
-  logout() {
-    this.authService.logout();
-  }
+  logout() { this.authService.logout(); }
 }
