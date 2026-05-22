@@ -4,12 +4,13 @@ import { Router } from '@angular/router';
 import { SurveyService } from '../../services/survey.service';
 import { AuthService } from '../../services/auth.service';
 import { SurveyResponse } from '../../models/survey.model';
+ import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-surveys',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './surveys.component.html',
+  templateUrl: './surveys.component.html'
 })
 export class SurveysComponent implements OnInit, OnDestroy {
   surveys: SurveyResponse[] = [];
@@ -19,10 +20,12 @@ export class SurveysComponent implements OnInit, OnDestroy {
   successMessage = '';
   private interval: any;
 
-  constructor(
+
+ constructor(
     private surveyService: SurveyService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -39,17 +42,19 @@ export class SurveysComponent implements OnInit, OnDestroy {
   }
 
   loadSurveys() {
-    this.surveyService.getActive().subscribe({
-      next: (data) => {
-        this.surveys = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Error al cargar las encuestas';
-        this.loading = false;
-      }
-    });
-  }
+  this.surveyService.getActive().subscribe({
+    next: (data) => {
+      this.surveys = data;
+      this.loading = false;
+      this.cdr.detectChanges(); // fuerza la detección de cambios
+    },
+    error: () => {
+      this.error = 'Error al cargar las encuestas';
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   vote(surveyId: number, optionId: number) {
     this.votingId = surveyId;

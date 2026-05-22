@@ -1,183 +1,334 @@
-<div class="min-h-screen" style="background-color: #1B1E2F;">
+<div class="min-h-screen relative" style="background: linear-gradient(135deg, #1B1E2F 0%, #242F49 100%);">
 
-  <!-- navbar -->
-  <nav class="px-8 py-4 flex justify-between items-center"
-       style="background-color: #242F49; border-bottom: 1px solid #384358;">
-    <div class="text-2xl font-bold" style="color: #FFA586;">
+  <!-- navbar glassmorphism -->
+  <nav style="
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  ">
+    <div style="font-size: 24px; font-weight: 700; color: #FFA586;">
       Vot<span style="color: #B51A2B;">App</span>
-      <span class="text-sm ml-2 font-normal" style="color: #A0A0B0;">Admin</span>
+      <span style="font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.4); margin-left: 8px;">Admin</span>
     </div>
-    <div class="flex items-center gap-4">
+    <div style="display: flex; align-items: center; gap: 12px;">
       <button
         (click)="openCreate()"
-        class="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-        style="background-color: #B51A2B;">
+        style="
+          padding: 10px 24px;
+          border-radius: 50px;
+          border: none;
+          background: linear-gradient(135deg, #B51A2B, #541A2E);
+          color: white;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 4px 15px rgba(181,26,43,0.3);
+        ">
         + Nueva encuesta
       </button>
       <button
         (click)="logout()"
-        class="px-4 py-2 rounded-lg text-sm font-semibold"
-        style="background-color: #384358; color: #F5F5F5;">
+        style="
+          padding: 8px 20px;
+          border-radius: 50px;
+          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.07);
+          color: rgba(255,255,255,0.7);
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+        ">
         Cerrar sesión
       </button>
     </div>
   </nav>
 
-  <div class="max-w-6xl mx-auto px-8 py-10">
+  <div style="max-width: 1100px; margin: 0 auto; padding: 40px 24px;">
 
-    <h1 class="text-3xl font-bold mb-2" style="color: #F5F5F5;">Panel de administración</h1>
-    <p class="mb-8 text-sm" style="color: #A0A0B0;">
-      Gestiona encuestas y ve los resultados en tiempo real
+    <h1 style="color: #F5F5F5; font-size: 28px; font-weight: 700; margin-bottom: 8px;">
+      Panel de administración
+    </h1>
+    <p style="color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 32px;">
+      ⚡ Gestiona encuestas y ve resultados en tiempo real
     </p>
 
     <!-- mensajes -->
-    <div *ngIf="successMessage" class="mb-4 p-3 rounded-lg text-sm"
-         style="background-color: #1B1E2F; border: 1px solid #FFA586; color: #FFA586;">
-      ✅ {{ successMessage }}
-    </div>
-    <div *ngIf="error" class="mb-4 p-3 rounded-lg text-sm"
-         style="background-color: #541A2E; color: #FFA586;">
-      ⚠️ {{ error }}
-    </div>
+    <div *ngIf="successMessage" style="
+      background: rgba(76,175,80,0.15);
+      border: 1px solid rgba(76,175,80,0.3);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #81C784;
+      font-size: 13px;
+      margin-bottom: 16px;
+    ">✅ {{ successMessage }}</div>
 
-    <!-- loading -->
-    <div *ngIf="loading" class="text-center py-20" style="color: #A0A0B0;">
-      Cargando encuestas...
+    <div *ngIf="error" style="
+      background: rgba(181,26,43,0.2);
+      border: 1px solid rgba(181,26,43,0.4);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #FFA586;
+      font-size: 13px;
+      margin-bottom: 16px;
+    ">⚠️ {{ error }}</div>
+
+    <!-- loader -->
+    <div *ngIf="loading" style="display: flex; flex-direction: column; align-items: center; padding: 80px 0;">
+      <div id="wifi-loader">
+        <svg class="circle-outer" viewBox="0 0 86 86">
+          <circle class="back" cx="43" cy="43" r="40"></circle>
+          <circle class="front" cx="43" cy="43" r="40"></circle>
+        </svg>
+        <svg class="circle-middle" viewBox="0 0 60 60">
+          <circle class="back" cx="30" cy="30" r="27"></circle>
+          <circle class="front" cx="30" cy="30" r="27"></circle>
+        </svg>
+        <svg class="circle-inner" viewBox="0 0 34 34">
+          <circle class="back" cx="17" cy="17" r="14"></circle>
+          <circle class="front" cx="17" cy="17" r="14"></circle>
+        </svg>
+        <div class="text" data-text="Cargando"></div>
+      </div>
     </div>
 
     <!-- grid de encuestas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div *ngFor="let survey of surveys"
-           class="rounded-2xl p-6"
-           style="background-color: #242F49; border: 1px solid #384358;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px;">
+      <div *ngFor="let survey of surveys" style="
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 24px;
+        transition: all 0.3s;
+      ">
 
         <!-- header -->
-        <div class="flex justify-between items-start mb-4">
-          <h2 class="text-lg font-semibold flex-1 mr-4" style="color: #F5F5F5;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+          <h2 style="color: #F5F5F5; font-size: 16px; font-weight: 600; flex: 1; margin-right: 12px; line-height: 1.4;">
             {{ survey.question }}
           </h2>
-          <span class="text-xs px-2 py-1 rounded-full flex-shrink-0"
-                [style.background-color]="survey.active ? '#1B2F1B' : '#541A2E'"
-                [style.color]="survey.active ? '#4CAF50' : '#FFA586'">
-            {{ survey.active ? 'Activa' : 'Inactiva' }}
+          <span style="
+            font-size: 11px; padding: 4px 10px;
+            border-radius: 50px; flex-shrink: 0;
+            border: 1px solid;
+          "
+          [style.background]="survey.active ? 'rgba(76,175,80,0.15)' : 'rgba(181,26,43,0.15)'"
+          [style.color]="survey.active ? '#81C784' : '#FFA586'"
+          [style.border-color]="survey.active ? 'rgba(76,175,80,0.3)' : 'rgba(181,26,43,0.3)'">
+            {{ survey.active ? '● Activa' : '● Inactiva' }}
           </span>
         </div>
 
-        <!-- opciones con barras -->
-        <div class="flex flex-col gap-2 mb-4">
+        <!-- barras de opciones -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
           <div *ngFor="let option of survey.options">
-            <div class="flex justify-between text-xs mb-1">
-              <span style="color: #A0A0B0;">{{ option.text }}</span>
-              <span style="color: #FFA586;">{{ getPercentage(option.votes, survey) }}% ({{ option.votes }})</span>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="color: rgba(255,255,255,0.6); font-size: 12px;">{{ option.text }}</span>
+              <span style="color: #FFA586; font-size: 12px; font-weight: 600;">
+                {{ getPercentage(option.votes, survey) }}% ({{ option.votes }})
+              </span>
             </div>
-            <div class="w-full rounded-full h-2" style="background-color: #384358;">
-              <div class="h-2 rounded-full transition-all"
-                   style="background-color: #B51A2B;"
-                   [style.width]="getPercentage(option.votes, survey) + '%'">
-              </div>
+            <div style="width: 100%; border-radius: 50px; height: 6px; background: rgba(255,255,255,0.08);">
+              <div style="
+                height: 6px; border-radius: 50px;
+                background: linear-gradient(90deg, #B51A2B, #FFA586);
+                transition: width 0.5s ease;
+              " [style.width]="getPercentage(option.votes, survey) + '%'"></div>
             </div>
           </div>
         </div>
 
-        <!-- footer -->
-        <div class="flex justify-between items-center pt-4"
-             style="border-top: 1px solid #384358;">
-          <span class="text-xs" style="color: #A0A0B0;">
-            {{ getTotalVotes(survey) }} votos totales
-          </span>
-          <div class="flex gap-2">
-            <!-- toggle activa/inactiva -->
-            <button
-              (click)="toggle(survey.id)"
-              class="px-3 py-1 rounded-lg text-xs font-semibold"
-              style="background-color: #384358; color: #F5F5F5;">
-              {{ survey.active ? 'Desactivar' : 'Activar' }}
-            </button>
-            <!-- editar -->
-            <button
-              (click)="openEdit(survey)"
-              class="px-3 py-1 rounded-lg text-xs font-semibold"
-              style="background-color: #242F49; border: 1px solid #FFA586; color: #FFA586;">
-              Editar
-            </button>
-            <!-- eliminar -->
-            <button
-              (click)="delete(survey.id)"
-              class="px-3 py-1 rounded-lg text-xs font-semibold"
-              style="background-color: #541A2E; color: #FFA586;">
-              Eliminar
-            </button>
-          </div>
+        <!-- total votos -->
+        <p style="color: rgba(255,255,255,0.3); font-size: 12px; margin-bottom: 16px;">
+          {{ getTotalVotes(survey) }} votos totales · por {{ survey.createdBy }}
+        </p>
+
+        <!-- acciones -->
+        <div style="
+          display: flex; gap: 8px;
+          padding-top: 16px;
+          border-top: 1px solid rgba(255,255,255,0.08);
+        ">
+          <!-- toggle -->
+          <button
+            (click)="toggle(survey.id)"
+            style="
+              flex: 1; padding: 8px;
+              border-radius: 10px;
+              border: 1px solid rgba(255,255,255,0.1);
+              background: rgba(255,255,255,0.05);
+              color: rgba(255,255,255,0.6);
+              font-size: 12px; font-weight: 600;
+              cursor: pointer; transition: all 0.2s;
+            ">
+            {{ survey.active ? '⏸ Pausar' : '▶ Activar' }}
+          </button>
+          <!-- editar -->
+          <button
+            (click)="openEdit(survey)"
+            style="
+              flex: 1; padding: 8px;
+              border-radius: 10px;
+              border: 1px solid rgba(255,165,134,0.3);
+              background: rgba(255,165,134,0.08);
+              color: #FFA586;
+              font-size: 12px; font-weight: 600;
+              cursor: pointer; transition: all 0.2s;
+            ">
+            ✏️ Editar
+          </button>
+          <!-- eliminar -->
+          <button
+            (click)="delete(survey.id)"
+            style="
+              flex: 1; padding: 8px;
+              border-radius: 10px;
+              border: 1px solid rgba(181,26,43,0.3);
+              background: rgba(181,26,43,0.08);
+              color: #ff6b6b;
+              font-size: 12px; font-weight: 600;
+              cursor: pointer; transition: all 0.2s;
+            ">
+            🗑 Eliminar
+          </button>
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- modal formulario -->
-  <div *ngIf="showForm"
-       class="fixed inset-0 flex items-center justify-center z-50"
-       style="background-color: rgba(0,0,0,0.7);">
-    <div class="w-full max-w-lg rounded-2xl p-8"
-         style="background-color: #242F49; border: 1px solid #384358;">
+  <!-- modal glassmorphism -->
+  <div *ngIf="showForm" style="
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px;
+  ">
+    <div style="
+      background: rgba(36,47,73,0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%; max-width: 500px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    ">
 
-      <h3 class="text-xl font-bold mb-6" style="color: #F5F5F5;">
-        {{ editingId ? 'Editar encuesta' : 'Nueva encuesta' }}
+      <h3 style="color: #F5F5F5; font-size: 20px; font-weight: 700; margin-bottom: 24px;">
+        {{ editingId ? '✏️ Editar encuesta' : '✨ Nueva encuesta' }}
       </h3>
 
-      <div class="flex flex-col gap-4">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
 
+        <!-- pregunta -->
         <div>
-          <label class="block text-sm mb-1" style="color: #A0A0B0;">Pregunta</label>
-          <input
-            type="text"
-            [(ngModel)]="question"
-            placeholder="¿Cuál es tu pregunta?"
-            class="w-full px-4 py-3 rounded-xl outline-none"
-            style="background-color: #1B1E2F; border: 1px solid #384358; color: #F5F5F5;"
-          />
+          <label style="color: rgba(255,255,255,0.5); font-size: 12px; display: block; margin-bottom: 8px;">
+            Pregunta
+          </label>
+          <div style="
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px; padding: 12px 16px;
+          ">
+            <input
+              type="text"
+              [(ngModel)]="question"
+              placeholder="¿Cuál es tu pregunta?"
+              style="background: transparent; border: none; outline: none; color: #F5F5F5; font-size: 14px; width: 100%;"
+            />
+          </div>
         </div>
 
+        <!-- opciones -->
         <div>
-          <label class="block text-sm mb-2" style="color: #A0A0B0;">Opciones</label>
-          <div class="flex flex-col gap-2">
-            <div *ngFor="let opt of options; let i = index" class="flex gap-2">
-              <input
-                type="text"
-                [(ngModel)]="options[i]"
-                [placeholder]="'Opción ' + (i + 1)"
-                class="flex-1 px-4 py-2 rounded-xl outline-none"
-                style="background-color: #1B1E2F; border: 1px solid #384358; color: #F5F5F5;"
-              />
+          <label style="color: rgba(255,255,255,0.5); font-size: 12px; display: block; margin-bottom: 8px;">
+            Opciones
+          </label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div *ngFor="let opt of options; let i = index"
+                 style="display: flex; gap: 8px; align-items: center;">
+              <div style="
+                flex: 1; display: flex; align-items: center;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 12px; padding: 10px 16px;
+              ">
+                <span style="color: rgba(255,255,255,0.3); font-size: 12px; margin-right: 8px;">
+                  {{ i + 1 }}.
+                </span>
+                <input
+                  type="text"
+                  [(ngModel)]="options[i]"
+                  [placeholder]="'Opción ' + (i + 1)"
+                  style="background: transparent; border: none; outline: none; color: #F5F5F5; font-size: 14px; width: 100%;"
+                />
+              </div>
               <button
                 *ngIf="options.length > 2"
                 (click)="removeOption(i)"
-                class="px-3 py-2 rounded-xl text-sm"
-                style="background-color: #541A2E; color: #FFA586;">
-                ✕
-              </button>
+                style="
+                  width: 36px; height: 36px;
+                  border-radius: 10px;
+                  border: 1px solid rgba(181,26,43,0.3);
+                  background: rgba(181,26,43,0.1);
+                  color: #ff6b6b;
+                  cursor: pointer; font-size: 14px;
+                  display: flex; align-items: center; justify-content: center;
+                ">✕</button>
             </div>
           </div>
+
           <button
             *ngIf="options.length < 6"
             (click)="addOption()"
-            class="mt-2 text-sm"
-            style="color: #FFA586;">
+            style="
+              margin-top: 8px;
+              background: none; border: none;
+              color: #FFA586; font-size: 13px;
+              cursor: pointer; font-weight: 600;
+            ">
             + Agregar opción
           </button>
         </div>
 
-        <div class="flex gap-3 mt-2">
+        <!-- botones -->
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
           <button
             (click)="closeForm()"
-            class="flex-1 py-3 rounded-xl font-semibold"
-            style="background-color: #384358; color: #F5F5F5;">
+            style="
+              flex: 1; padding: 14px;
+              border-radius: 12px;
+              border: 1px solid rgba(255,255,255,0.15);
+              background: rgba(255,255,255,0.05);
+              color: rgba(255,255,255,0.7);
+              font-weight: 600; font-size: 14px;
+              cursor: pointer;
+            ">
             Cancelar
           </button>
           <button
             (click)="onSubmit()"
-            class="flex-1 py-3 rounded-xl font-semibold text-white"
-            style="background-color: #B51A2B;">
+            style="
+              flex: 1; padding: 14px;
+              border-radius: 12px;
+              border: none;
+              background: linear-gradient(135deg, #B51A2B, #541A2E);
+              color: white;
+              font-weight: 600; font-size: 14px;
+              cursor: pointer;
+              box-shadow: 0 4px 15px rgba(181,26,43,0.3);
+            ">
             {{ editingId ? 'Guardar cambios' : 'Crear encuesta' }}
           </button>
         </div>
@@ -187,3 +338,64 @@
   </div>
 
 </div>
+
+<style>
+#wifi-loader {
+  --front-color: #B51A2B;
+  --back-color: #384358;
+  width: 64px; height: 64px;
+  border-radius: 50px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 48px;
+}
+#wifi-loader svg {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#wifi-loader svg circle {
+  fill: none; stroke-width: 6px;
+  stroke-linecap: round;
+  transform: rotate(-100deg);
+  transform-origin: center;
+}
+#wifi-loader svg circle.back { stroke: var(--back-color); }
+#wifi-loader svg circle.front { stroke: var(--front-color); }
+#wifi-loader svg.circle-outer { height: 86px; width: 86px; }
+#wifi-loader svg.circle-outer circle { stroke-dasharray: 62.75 188.25; }
+#wifi-loader svg.circle-outer circle.back { animation: circle-outer 1.8s ease infinite 0.3s; }
+#wifi-loader svg.circle-outer circle.front { animation: circle-outer 1.8s ease infinite 0.15s; }
+#wifi-loader svg.circle-middle { height: 60px; width: 60px; }
+#wifi-loader svg.circle-middle circle { stroke-dasharray: 42.5 127.5; }
+#wifi-loader svg.circle-middle circle.back { animation: circle-middle 1.8s ease infinite 0.25s; }
+#wifi-loader svg.circle-middle circle.front { animation: circle-middle 1.8s ease infinite 0.1s; }
+#wifi-loader svg.circle-inner { height: 34px; width: 34px; }
+#wifi-loader svg.circle-inner circle { stroke-dasharray: 22 66; }
+#wifi-loader svg.circle-inner circle.back { animation: circle-inner 1.8s ease infinite 0.2s; }
+#wifi-loader svg.circle-inner circle.front { animation: circle-inner 1.8s ease infinite 0.05s; }
+#wifi-loader .text {
+  position: absolute; bottom: -40px;
+  font-weight: 500; font-size: 13px;
+  color: rgba(255,255,255,0.4);
+}
+#wifi-loader .text::before { content: attr(data-text); }
+@keyframes circle-outer {
+  0% { stroke-dashoffset: 25; } 25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 301; } 80% { stroke-dashoffset: 276; }
+  100% { stroke-dashoffset: 276; }
+}
+@keyframes circle-middle {
+  0% { stroke-dashoffset: 17; } 25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 204; } 80% { stroke-dashoffset: 187; }
+  100% { stroke-dashoffset: 187; }
+}
+@keyframes circle-inner {
+  0% { stroke-dashoffset: 9; } 25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 106; } 80% { stroke-dashoffset: 97; }
+  100% { stroke-dashoffset: 97; }
+}
+</style>
