@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #1B1E2F;
+  --color-card: #242F49;
+  --color-border: #384358;
+  --color-accent: #FFA586;
+  --color-primary: #B51A2B;
+  --color-primary-hover: #541A2E;
+  --color-text: #F5F5F5;
+  --color-text-muted: #A0A0B0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}

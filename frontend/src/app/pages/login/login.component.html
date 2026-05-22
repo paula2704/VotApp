@@ -1,0 +1,196 @@
+<div class="min-h-screen flex items-center justify-center relative overflow-hidden"
+     style="background: radial-gradient(ellipse at top left, #B51A2B 0%, #1B1E2F 40%, #242F49 100%);">
+
+  <!-- círculos decorativos de fondo -->
+  <div style="
+    position: absolute; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(181,26,43,0.4) 0%, transparent 70%);
+    top: -100px; left: -100px; border-radius: 50%;
+  "></div>
+  <div style="
+    position: absolute; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,165,134,0.2) 0%, transparent 70%);
+    bottom: -50px; right: -50px; border-radius: 50%;
+  "></div>
+
+  <!-- card glassmorphism -->
+  <div style="
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 10;
+  ">
+
+    <!-- avatar -->
+    <div class="flex flex-col items-center mb-8">
+      <div style="
+        width: 80px; height: 80px;
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 16px;
+      ">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12z"
+                fill="rgba(255,255,255,0.6)"/>
+          <path d="M12 14.4c-4.8 0-8.4 2.4-8.4 5.4v1.2h16.8v-1.2c0-3-3.6-5.4-8.4-5.4z"
+                fill="rgba(255,255,255,0.6)"/>
+        </svg>
+      </div>
+      <h2 style="color: #F5F5F5; font-size: 26px; font-weight: 600; margin-bottom: 4px;">
+        VotApp
+      </h2>
+      <p style="color: rgba(255,255,255,0.5); font-size: 13px;">
+        Inicia sesión para continuar
+      </p>
+    </div>
+
+    <!-- error -->
+    <div *ngIf="error" style="
+      background: rgba(181,26,43,0.3);
+      border: 1px solid rgba(181,26,43,0.5);
+      border-radius: 10px;
+      padding: 10px 16px;
+      color: #FFA586;
+      font-size: 13px;
+      margin-bottom: 16px;
+    ">⚠️ {{ error }}</div>
+
+    <!-- inputs -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+
+      <!-- usuario -->
+      <div style="
+        display: flex; align-items: center; gap: 12px;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        padding: 12px 16px;
+        transition: all 0.2s;
+      ">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="7" r="4"
+                  stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+        </svg>
+        <input
+          type="text"
+          [(ngModel)]="username"
+          placeholder="Usuario"
+          style="
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #F5F5F5;
+            font-size: 14px;
+            width: 100%;
+          "
+        />
+      </div>
+
+      <!-- contraseña -->
+      <div style="
+        display: flex; align-items: center; gap: 12px;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        padding: 12px 16px;
+        transition: all 0.2s;
+      ">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"
+                stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"
+                stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          placeholder="Contraseña"
+          style="
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #F5F5F5;
+            font-size: 14px;
+            width: 100%;
+          "
+        />
+      </div>
+
+      <!-- botón login -->
+      <button
+        (click)="onSubmit()"
+        [disabled]="loading"
+        class="glass-btn"
+        style="
+          width: 100%;
+          padding: 14px;
+          border-radius: 12px;
+          border: none;
+          background: linear-gradient(135deg, #B51A2B, #541A2E);
+          color: white;
+          font-weight: 600;
+          font-size: 15px;
+          letter-spacing: 1px;
+          cursor: pointer;
+          margin-top: 8px;
+          transition: all 0.3s;
+          text-transform: uppercase;
+        ">
+        {{ loading ? 'Ingresando...' : 'LOGIN' }}
+      </button>
+
+      <!-- divisor -->
+      <div style="display: flex; align-items: center; gap: 10px; margin: 4px 0;">
+        <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+        <span style="color: rgba(255,255,255,0.4); font-size: 12px;">o</span>
+        <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+      </div>
+
+      <!-- link registro -->
+      <button
+        routerLink="/register"
+        style="
+          width: 100%;
+          padding: 12px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.05);
+          color: rgba(255,255,255,0.7);
+          font-weight: 500;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.2s;
+        ">
+        Crear una cuenta
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<style>
+.glass-btn:hover {
+  background: linear-gradient(135deg, #541A2E, #B51A2B) !important;
+  box-shadow: 0 8px 25px rgba(181, 26, 43, 0.5);
+  transform: translateY(-1px);
+}
+.glass-btn:active {
+  transform: translateY(1px);
+}
+.glass-btn:disabled {
+  background: rgba(255,255,255,0.1) !important;
+  color: rgba(255,255,255,0.3);
+  cursor: not-allowed;
+}
+</style>

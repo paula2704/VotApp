@@ -1,0 +1,247 @@
+<div class="min-h-screen relative" style="background: linear-gradient(135deg, #1B1E2F 0%, #242F49 100%);">
+
+  <!-- navbar glassmorphism -->
+  <nav style="
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  ">
+    <div style="font-size: 24px; font-weight: 700; color: #FFA586;">
+      Vot<span style="color: #B51A2B;">App</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="color: rgba(255,255,255,0.5); font-size: 13px;">Encuestas activas</span>
+      <button
+        (click)="logout()"
+        style="
+          padding: 8px 20px;
+          border-radius: 50px;
+          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.07);
+          color: rgba(255,255,255,0.7);
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+        ">
+        Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <div style="max-width: 800px; margin: 0 auto; padding: 40px 24px;">
+
+    <h1 style="color: #F5F5F5; font-size: 28px; font-weight: 700; margin-bottom: 8px;">
+      Encuestas disponibles
+    </h1>
+    <p style="color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 32px;">
+      ⚡ Resultados en tiempo real — se actualizan cada 5 segundos
+    </p>
+
+    <!-- éxito -->
+    <div *ngIf="successMessage" style="
+      background: rgba(76,175,80,0.15);
+      border: 1px solid rgba(76,175,80,0.3);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #81C784;
+      font-size: 13px;
+      margin-bottom: 16px;
+    ">✅ {{ successMessage }}</div>
+
+    <!-- error -->
+    <div *ngIf="error" style="
+      background: rgba(181,26,43,0.2);
+      border: 1px solid rgba(181,26,43,0.4);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #FFA586;
+      font-size: 13px;
+      margin-bottom: 16px;
+    ">⚠️ {{ error }}</div>
+
+    <!-- loader animado -->
+    <div *ngIf="loading" style="display: flex; flex-direction: column; align-items: center; padding: 80px 0;">
+      <div id="wifi-loader">
+        <svg class="circle-outer" viewBox="0 0 86 86">
+          <circle class="back" cx="43" cy="43" r="40"></circle>
+          <circle class="front" cx="43" cy="43" r="40"></circle>
+        </svg>
+        <svg class="circle-middle" viewBox="0 0 60 60">
+          <circle class="back" cx="30" cy="30" r="27"></circle>
+          <circle class="front" cx="30" cy="30" r="27"></circle>
+        </svg>
+        <svg class="circle-inner" viewBox="0 0 34 34">
+          <circle class="back" cx="17" cy="17" r="14"></circle>
+          <circle class="front" cx="17" cy="17" r="14"></circle>
+        </svg>
+        <div class="text" data-text="Cargando"></div>
+      </div>
+    </div>
+
+    <!-- sin encuestas -->
+    <div *ngIf="!loading && surveys.length === 0" style="
+      text-align: center;
+      padding: 80px 0;
+      color: rgba(255,255,255,0.3);
+    ">
+      <div style="font-size: 48px; margin-bottom: 16px;">🗳️</div>
+      <p style="font-size: 16px;">No hay encuestas activas en este momento</p>
+    </div>
+
+    <!-- lista de encuestas -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div *ngFor="let survey of surveys" style="
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 28px;
+        transition: all 0.3s;
+      ">
+
+        <!-- header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+          <h2 style="color: #F5F5F5; font-size: 18px; font-weight: 600; flex: 1; margin-right: 16px;">
+            {{ survey.question }}
+          </h2>
+          <span style="
+            font-size: 12px; padding: 4px 12px;
+            border-radius: 50px; flex-shrink: 0;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+          ">
+            {{ getTotalVotes(survey) }} votos
+          </span>
+        </div>
+
+        <!-- opciones -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div *ngFor="let option of survey.options">
+            <button
+              (click)="vote(survey.id, option.id)"
+              [disabled]="votingId === survey.id"
+              style="
+                width: 100%;
+                text-align: left;
+                padding: 14px 18px;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.1);
+                background: rgba(255,255,255,0.05);
+                color: #F5F5F5;
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.2s;
+              "
+              onmouseover="this.style.borderColor='rgba(181,26,43,0.5)'; this.style.background='rgba(181,26,43,0.1)'"
+              onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.05)'">
+
+              <!-- barra de progreso -->
+              <div style="
+                position: absolute; inset: 0; border-radius: 12px;
+                background: linear-gradient(90deg, rgba(181,26,43,0.25), transparent);
+                transition: width 0.5s ease;
+              " [style.width]="getPercentage(option.votes, survey) + '%'"></div>
+
+              <!-- contenido -->
+              <div style="position: relative; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 14px;">{{ option.text }}</span>
+                <span style="font-size: 13px; font-weight: 700; color: #FFA586;">
+                  {{ getPercentage(option.votes, survey) }}%
+                </span>
+              </div>
+
+            </button>
+          </div>
+        </div>
+
+        <!-- footer -->
+        <p style="margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.3);">
+          Creada por {{ survey.createdBy }}
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+#wifi-loader {
+  --front-color: #B51A2B;
+  --back-color: #384358;
+  width: 64px;
+  height: 64px;
+  border-radius: 50px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 48px;
+}
+#wifi-loader svg {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#wifi-loader svg circle {
+  fill: none;
+  stroke-width: 6px;
+  stroke-linecap: round;
+  transform: rotate(-100deg);
+  transform-origin: center;
+}
+#wifi-loader svg circle.back { stroke: var(--back-color); }
+#wifi-loader svg circle.front { stroke: var(--front-color); }
+#wifi-loader svg.circle-outer { height: 86px; width: 86px; }
+#wifi-loader svg.circle-outer circle { stroke-dasharray: 62.75 188.25; }
+#wifi-loader svg.circle-outer circle.back { animation: circle-outer 1.8s ease infinite 0.3s; }
+#wifi-loader svg.circle-outer circle.front { animation: circle-outer 1.8s ease infinite 0.15s; }
+#wifi-loader svg.circle-middle { height: 60px; width: 60px; }
+#wifi-loader svg.circle-middle circle { stroke-dasharray: 42.5 127.5; }
+#wifi-loader svg.circle-middle circle.back { animation: circle-middle 1.8s ease infinite 0.25s; }
+#wifi-loader svg.circle-middle circle.front { animation: circle-middle 1.8s ease infinite 0.1s; }
+#wifi-loader svg.circle-inner { height: 34px; width: 34px; }
+#wifi-loader svg.circle-inner circle { stroke-dasharray: 22 66; }
+#wifi-loader svg.circle-inner circle.back { animation: circle-inner 1.8s ease infinite 0.2s; }
+#wifi-loader svg.circle-inner circle.front { animation: circle-inner 1.8s ease infinite 0.05s; }
+#wifi-loader .text {
+  position: absolute;
+  bottom: -40px;
+  font-weight: 500;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+}
+#wifi-loader .text::before { content: attr(data-text); }
+@keyframes circle-outer {
+  0% { stroke-dashoffset: 25; }
+  25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 301; }
+  80% { stroke-dashoffset: 276; }
+  100% { stroke-dashoffset: 276; }
+}
+@keyframes circle-middle {
+  0% { stroke-dashoffset: 17; }
+  25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 204; }
+  80% { stroke-dashoffset: 187; }
+  100% { stroke-dashoffset: 187; }
+}
+@keyframes circle-inner {
+  0% { stroke-dashoffset: 9; }
+  25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 106; }
+  80% { stroke-dashoffset: 97; }
+  100% { stroke-dashoffset: 97; }
+}
+</style>
