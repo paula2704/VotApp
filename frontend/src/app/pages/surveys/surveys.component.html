@@ -1,10 +1,10 @@
-<div class="min-h-screen relative" style="background: linear-gradient(135deg, #1B1E2F 0%, #242F49 100%);">
+bu<div class="min-h-screen relative" style="background-color: var(--bg); transition: all 0.3s;">
 
   <!-- navbar glassmorphism -->
   <nav style="
-    background: rgba(255,255,255,0.05);
+    background: var(--glass);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid var(--glass-border);
     padding: 16px 32px;
     display: flex;
     justify-content: space-between;
@@ -17,57 +17,67 @@
       Vot<span style="color: #B51A2B;">App</span>
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
-      <span style="color: rgba(255,255,255,0.5); font-size: 13px;">Encuestas activas</span>
+      <span style="color: var(--text-muted); font-size: 13px;">Encuestas activas</span>
+
+      <button (click)="themeService.toggle()" class="animated-button">
+  <svg xmlns="http://www.w3.org/2000/svg" class="arr-2" viewBox="0 0 24 24">
+    <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+  </svg>
+  <span class="text">
+    <i [class]="themeService.darkMode ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
+    {{ themeService.darkMode ? 'Claro' : 'Oscuro' }}
+  </span>
+  <span class="circle"></span>
+  <svg xmlns="http://www.w3.org/2000/svg" class="arr-1" viewBox="0 0 24 24">
+    <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
+  </svg>
+</button>
+
       <button
         (click)="logout()"
         style="
           padding: 8px 20px;
           border-radius: 50px;
-          border: 1px solid rgba(255,255,255,0.15);
-          background: rgba(255,255,255,0.07);
-          color: rgba(255,255,255,0.7);
+          border: 1px solid var(--glass-border);
+          background: var(--glass);
+          color: var(--text-muted);
           font-size: 13px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
         ">
         Cerrar sesión
       </button>
     </div>
   </nav>
 
-  <div style="max-width: 800px; margin: 0 auto; padding: 40px 24px;">
+  <div style="max-width: 900px; margin: 0 auto; padding: 40px 24px;">
 
-    <h1 style="color: #F5F5F5; font-size: 28px; font-weight: 700; margin-bottom: 8px;">
+    <h1 style="color: var(--text); font-size: 28px; font-weight: 700; margin-bottom: 8px;">
       Encuestas disponibles
     </h1>
-    <p style="color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 32px;">
-      ⚡ Resultados en tiempo real — se actualizan cada 5 segundos
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 32px;">
+       Resultados en tiempo real — se actualizan cada 5 segundos
     </p>
 
     <!-- éxito -->
     <div *ngIf="successMessage" style="
       background: rgba(76,175,80,0.15);
       border: 1px solid rgba(76,175,80,0.3);
-      border-radius: 12px;
-      padding: 12px 16px;
-      color: #81C784;
-      font-size: 13px;
-      margin-bottom: 16px;
-    ">✅ {{ successMessage }}</div>
+      border-radius: 12px; padding: 12px 16px;
+      color: #81C784; font-size: 13px; margin-bottom: 16px;">
+      {{ successMessage }}
+    </div>
 
     <!-- error -->
     <div *ngIf="error" style="
       background: rgba(181,26,43,0.2);
       border: 1px solid rgba(181,26,43,0.4);
-      border-radius: 12px;
-      padding: 12px 16px;
-      color: #FFA586;
-      font-size: 13px;
-      margin-bottom: 16px;
-    ">⚠️ {{ error }}</div>
+      border-radius: 12px; padding: 12px 16px;
+      color: #FFA586; font-size: 13px; margin-bottom: 16px;">
+       {{ error }}
+    </div>
 
-    <!-- loader animado -->
+    <!-- loader -->
     <div *ngIf="loading" style="display: flex; flex-direction: column; align-items: center; padding: 80px 0;">
       <div id="wifi-loader">
         <svg class="circle-outer" viewBox="0 0 86 86">
@@ -88,87 +98,103 @@
 
     <!-- sin encuestas -->
     <div *ngIf="!loading && surveys.length === 0" style="
-      text-align: center;
-      padding: 80px 0;
-      color: rgba(255,255,255,0.3);
-    ">
+      text-align: center; padding: 80px 0;
+      color: var(--text-muted);">
       <div style="font-size: 48px; margin-bottom: 16px;">🗳️</div>
       <p style="font-size: 16px;">No hay encuestas activas en este momento</p>
     </div>
 
-    <!-- lista de encuestas -->
-    <div style="display: flex; flex-direction: column; gap: 20px;">
-      <div *ngFor="let survey of surveys" style="
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 20px;
-        padding: 28px;
-        transition: all 0.3s;
-      ">
+    <!-- flip cards grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+      <div *ngFor="let survey of surveys" class="flip-card">
+        <div class="flip-card-inner">
 
-        <!-- header -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-          <h2 style="color: #F5F5F5; font-size: 18px; font-weight: 600; flex: 1; margin-right: 16px;">
-            {{ survey.question }}
-          </h2>
-          <span style="
-            font-size: 12px; padding: 4px 12px;
-            border-radius: 50px; flex-shrink: 0;
-            background: rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
+          <!-- frente -->
+          <div class="flip-card-front" style="
+            background: var(--card);
+            border: 1px solid var(--glass-border);
           ">
-            {{ getTotalVotes(survey) }} votos
-          </span>
-        </div>
-
-        <!-- opciones -->
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <div *ngFor="let option of survey.options">
-            <button
-              (click)="vote(survey.id, option.id)"
-              [disabled]="votingId === survey.id"
-              style="
-                width: 100%;
-                text-align: left;
-                padding: 14px 18px;
-                border-radius: 12px;
-                border: 1px solid rgba(255,255,255,0.1);
-                background: rgba(255,255,255,0.05);
-                color: #F5F5F5;
-                cursor: pointer;
-                position: relative;
-                overflow: hidden;
-                transition: all 0.2s;
-              "
-              onmouseover="this.style.borderColor='rgba(181,26,43,0.5)'; this.style.background='rgba(181,26,43,0.1)'"
-              onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.05)'">
-
-              <!-- barra de progreso -->
+            <div style="padding: 28px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="
+                  width: 48px; height: 48px; border-radius: 14px;
+                  background: rgba(181,26,43,0.15);
+                  display: flex; align-items: center; justify-content: center;
+                  font-size: 22px; margin-bottom: 16px;">
+                  
+                </div>
+                <h2 style="color: var(--text); font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 12px;">
+                  {{ survey.question }}
+                </h2>
+                <p style="color: var(--text-muted); font-size: 12px;">
+                  {{ survey.options.length }} opciones · {{ getTotalVotes(survey) }} votos
+                </p>
+              </div>
               <div style="
-                position: absolute; inset: 0; border-radius: 12px;
-                background: linear-gradient(90deg, rgba(181,26,43,0.25), transparent);
-                transition: width 0.5s ease;
-              " [style.width]="getPercentage(option.votes, survey) + '%'"></div>
+                display: flex; align-items: center; gap: 8px;
+                color: #FFA586; font-size: 13px; font-weight: 600;
+                margin-top: 20px;">
+                <span>Votar →</span>
+              </div>
+            </div>
+          </div>
 
-              <!-- contenido -->
-              <div style="position: relative; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 14px;">{{ option.text }}</span>
-                <span style="font-size: 13px; font-weight: 700; color: #FFA586;">
-                  {{ getPercentage(option.votes, survey) }}%
-                </span>
+          <!-- reverso -->
+          <div class="flip-card-back" style="
+            background: linear-gradient(135deg, #242F49, #1B1E2F);
+            border: 1px solid rgba(181,26,43,0.3);
+          ">
+            <div style="padding: 24px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+
+              <h3 style="color: #FFA586; font-size: 14px; font-weight: 700; margin-bottom: 16px; text-align: left;">
+                {{ survey.question }}
+              </h3>
+
+              <!-- opciones -->
+              <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                <div *ngFor="let option of survey.options">
+                  <button
+                    (click)="vote(survey.id, option.id)"
+                    [disabled]="votingId === survey.id"
+                    style="
+                      width: 100%; text-align: left;
+                      padding: 10px 14px;
+                      border-radius: 10px;
+                      border: 1px solid rgba(255,255,255,0.1);
+                      background: rgba(255,255,255,0.05);
+                      color: #F5F5F5;
+                      cursor: pointer;
+                      position: relative; overflow: hidden;
+                      transition: all 0.2s;
+                      font-size: 13px;
+                    "
+                    onmouseover="this.style.borderColor='rgba(181,26,43,0.5)'; this.style.background='rgba(181,26,43,0.15)'"
+                    onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.05)'">
+
+                    <!-- barra de progreso -->
+                    <div style="
+                      position: absolute; inset: 0; border-radius: 10px;
+                      background: linear-gradient(90deg, rgba(181,26,43,0.3), transparent);
+                      transition: width 0.5s ease;
+                    " [style.width]="getPercentage(option.votes, survey) + '%'"></div>
+
+                    <div style="position: relative; display: flex; justify-content: space-between;">
+                      <span>{{ option.text }}</span>
+                      <span style="color: #FFA586; font-weight: 700;">
+                        {{ getPercentage(option.votes, survey) }}%
+                      </span>
+                    </div>
+                  </button>
+                </div>
               </div>
 
-            </button>
+              <p style="color: rgba(255,255,255,0.3); font-size: 11px; margin-top: 12px; text-align: left;">
+                por {{ survey.createdBy }}
+              </p>
+            </div>
           </div>
+
         </div>
-
-        <!-- footer -->
-        <p style="margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.3);">
-          Creada por {{ survey.createdBy }}
-        </p>
-
       </div>
     </div>
 
@@ -176,11 +202,40 @@
 </div>
 
 <style>
+/* flip card */
+.flip-card {
+  background-color: transparent;
+  height: 320px;
+  perspective: 1000px;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.7s cubic-bezier(0.61, 0.98, 0.48, 1.01);
+  transform-style: preserve-3d;
+}
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%; height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* loader */
 #wifi-loader {
   --front-color: #B51A2B;
   --back-color: #384358;
-  width: 64px;
-  height: 64px;
+  width: 64px; height: 64px;
   border-radius: 50px;
   position: relative;
   display: flex;
@@ -188,19 +243,8 @@
   align-items: center;
   margin-bottom: 48px;
 }
-#wifi-loader svg {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-#wifi-loader svg circle {
-  fill: none;
-  stroke-width: 6px;
-  stroke-linecap: round;
-  transform: rotate(-100deg);
-  transform-origin: center;
-}
+#wifi-loader svg { position: absolute; display: flex; justify-content: center; align-items: center; }
+#wifi-loader svg circle { fill: none; stroke-width: 6px; stroke-linecap: round; transform: rotate(-100deg); transform-origin: center; }
 #wifi-loader svg circle.back { stroke: var(--back-color); }
 #wifi-loader svg circle.front { stroke: var(--front-color); }
 #wifi-loader svg.circle-outer { height: 86px; width: 86px; }
@@ -215,33 +259,71 @@
 #wifi-loader svg.circle-inner circle { stroke-dasharray: 22 66; }
 #wifi-loader svg.circle-inner circle.back { animation: circle-inner 1.8s ease infinite 0.2s; }
 #wifi-loader svg.circle-inner circle.front { animation: circle-inner 1.8s ease infinite 0.05s; }
-#wifi-loader .text {
-  position: absolute;
-  bottom: -40px;
-  font-weight: 500;
-  font-size: 13px;
-  color: rgba(255,255,255,0.4);
-}
+#wifi-loader .text { position: absolute; bottom: -40px; font-weight: 500; font-size: 13px; color: rgba(255,255,255,0.4); }
 #wifi-loader .text::before { content: attr(data-text); }
 @keyframes circle-outer {
-  0% { stroke-dashoffset: 25; }
-  25% { stroke-dashoffset: 0; }
-  65% { stroke-dashoffset: 301; }
-  80% { stroke-dashoffset: 276; }
-  100% { stroke-dashoffset: 276; }
+  0% { stroke-dashoffset: 25; } 25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 301; } 80% { stroke-dashoffset: 276; } 100% { stroke-dashoffset: 276; }
 }
 @keyframes circle-middle {
-  0% { stroke-dashoffset: 17; }
-  25% { stroke-dashoffset: 0; }
-  65% { stroke-dashoffset: 204; }
-  80% { stroke-dashoffset: 187; }
-  100% { stroke-dashoffset: 187; }
+  0% { stroke-dashoffset: 17; } 25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 204; } 80% { stroke-dashoffset: 187; } 100% { stroke-dashoffset: 187; }
 }
 @keyframes circle-inner {
-  0% { stroke-dashoffset: 9; }
-  25% { stroke-dashoffset: 0; }
-  65% { stroke-dashoffset: 106; }
-  80% { stroke-dashoffset: 97; }
-  100% { stroke-dashoffset: 97; }
+  0% { stroke-dashoffset: 9; } 25% { stroke-dashoffset: 0; }
+  65% { stroke-dashoffset: 106; } 80% { stroke-dashoffset: 97; } 100% { stroke-dashoffset: 97; }
 }
+.animated-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 24px;
+  border: 2px solid transparent;
+  font-size: 13px;
+  background-color: transparent;
+  border-radius: 100px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 0 0 2px white;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.animated-button svg {
+  position: absolute;
+  width: 20px;
+  fill: white;
+  z-index: 9;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.animated-button .arr-1 { right: 16px; }
+.animated-button .arr-2 { left: -25%; }
+.animated-button .circle {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px; height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.animated-button .text {
+  position: relative;
+  z-index: 1;
+  transform: translateX(-12px);
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.animated-button:hover {
+  box-shadow: 0 0 0 12px transparent;
+  color: #1B1E2F;
+  border-radius: 12px;
+}
+.animated-button:hover .arr-1 { right: -25%; }
+.animated-button:hover .arr-2 { left: 16px; }
+.animated-button:hover .text { transform: translateX(12px); }
+.animated-button:hover svg { fill: #1B1E2F; }
+.animated-button:active { scale: 0.95; box-shadow: 0 0 0 4px white; }
+.animated-button:hover .circle { width: 220px; height: 220px; opacity: 1; }
 </style>

@@ -7,6 +7,7 @@ import { SurveyResponse, SurveyRequest } from '../../models/survey.model';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
 import { Chart, ArcElement, Tooltip, Legend, DoughnutController, BarController, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { ThemeService } from '../../services/theme.service';
 
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController, BarController, CategoryScale, LinearScale, BarElement);
 
@@ -85,11 +86,12 @@ export class AdminComponent implements OnInit, OnDestroy {
     }
   };
 
-  constructor(
-    private surveyService: SurveyService,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
-  ) {}
+ constructor(
+  private surveyService: SurveyService,
+  private authService: AuthService,
+  private cdr: ChangeDetectorRef,
+  public themeService: ThemeService
+) {}
 
   ngOnInit() {
     this.loadSurveys();

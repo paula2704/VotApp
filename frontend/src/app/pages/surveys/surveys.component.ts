@@ -5,6 +5,7 @@ import { SurveyService } from '../../services/survey.service';
 import { AuthService } from '../../services/auth.service';
 import { SurveyResponse } from '../../models/survey.model';
  import { ChangeDetectorRef } from '@angular/core';
+ import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-surveys',
@@ -21,13 +22,14 @@ export class SurveysComponent implements OnInit, OnDestroy {
   private interval: any;
 
 
- constructor(
-    private surveyService: SurveyService,
-    private authService: AuthService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {}
 
+constructor(
+  private surveyService: SurveyService,
+  private authService: AuthService,
+  private router: Router,
+  private cdr: ChangeDetectorRef,
+  public themeService: ThemeService
+) {}
   ngOnInit() {
     this.loadSurveys();
     // polling cada 5 segundos — actualiza los resultados automáticamente

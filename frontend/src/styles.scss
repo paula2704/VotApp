@@ -3,24 +3,59 @@
 @tailwind utilities;
 
 :root {
-  --color-bg: #1B1E2F;
-  --color-card: #242F49;
-  --color-border: #384358;
-  --color-accent: #FFA586;
-  --color-primary: #B51A2B;
-  --color-primary-hover: #541A2E;
-  --color-text: #F5F5F5;
-  --color-text-muted: #A0A0B0;
+  --bg: #1B1E2F;
+  --card: #242F49;
+  --border: #384358;
+  --accent: #FFA586;
+  --primary: #B51A2B;
+  --primary-hover: #541A2E;
+  --text: #F5F5F5;
+  --text-muted: #A0A0B0;
+  --glass: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.1);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+[data-theme="light"] {
+  --bg: #F0F2F5;
+  --card: #FFFFFF;
+  --border: #E0E0E0;
+  --accent: #B51A2B;
+  --primary: #B51A2B;
+  --primary-hover: #541A2E;
+  --text: #1B1E2F;
+  --text-muted: #666666;
+  --glass: rgba(0,0,0,0.03);
+  --glass-border: rgba(0,0,0,0.08);
 }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--bg);
+  color: var(--text);
+  transition: all 0.3s ease;
+}
+.theme-btn {
+  font-size: 1rem;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  outline: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  background-color: rgb(14, 14, 26);
+  color: rgb(234, 234, 234);
+  font-weight: 700;
+  transition: 0.6s;
+  box-shadow: 0px 0px 60px #1f4c65;
+  -webkit-box-reflect: below 10px linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.4));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.theme-btn:active { scale: 0.92; }
+.theme-btn:hover {
+  background: linear-gradient(270deg, rgba(2,29,78,0.681) 0%, rgba(31,215,232,0.873) 60%);
+  color: rgb(4, 4, 38);
 }
