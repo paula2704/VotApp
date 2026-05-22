@@ -1,5 +1,7 @@
 package com.VotApp.demo.config;
 
+import com.VotApp.demo.security.JwtFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,57 +13,59 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.VotApp.demo.security.JwtFilter;
+import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-// @Configuration le dice a Spring que esta clase define beans (componentes)
-// Configura qué endpoints son públicos y cuáles requieren rol
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
+    // configura CORS directamente en Spring Security
+    // esto es necesario porque Security intercepta antes que el filtro de CORS
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // desactiva CSRF porque usamos JWT, no sesiones
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.disable())
-            // STATELESS significa que Spring no guarda sesiones
-            // cada petición debe traer su propio token
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
             .authorizeHttpRequests(auth -> auth
-                // endpoints públicos — no requieren token
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-
-                // solo ADMIN puede crear, editar y eliminar encuestas
                 .requestMatchers(HttpMethod.POST, "/api/surveys").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/surveys/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/surveys/**").hasRole("ADMIN")
-
-                // cualquier usuario autenticado puede ver encuestas y votar
+                .requestMatchers(HttpMethod.PATCH, "/api/surveys/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
-
-            // agrega nuestro filtro JWT antes del filtro de autenticación de Spring
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // BCrypt es el algoritmo estándar para encriptar contraseñas
-    // nunca guardes contraseñas en texto plano
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // AuthenticationManager es necesario para el proceso de login
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
